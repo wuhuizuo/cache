@@ -1,9 +1,9 @@
 # Cache gin's middleware
 
-[![Build Status](https://travis-ci.org/gin-contrib/cache.svg)](https://travis-ci.org/gin-contrib/cache)
-[![codecov](https://codecov.io/gh/gin-contrib/cache/branch/master/graph/badge.svg)](https://codecov.io/gh/gin-contrib/cache)
-[![Go Report Card](https://goreportcard.com/badge/github.com/gin-contrib/cache)](https://goreportcard.com/report/github.com/gin-contrib/cache)
-[![GoDoc](https://godoc.org/github.com/gin-contrib/cache?status.svg)](https://godoc.org/github.com/gin-contrib/cache)
+[![Build Status](https://travis-ci.org/wuhuizuo/cache.svg)](https://travis-ci.org/wuhuizuo/cache)
+[![codecov](https://codecov.io/gh/wuhuizuo/cache/branch/master/graph/badge.svg)](https://codecov.io/gh/wuhuizuo/cache)
+[![Go Report Card](https://goreportcard.com/badge/github.com/wuhuizuo/cache)](https://goreportcard.com/report/github.com/wuhuizuo/cache)
+[![GoDoc](https://godoc.org/github.com/wuhuizuo/cache?status.svg)](https://godoc.org/github.com/wuhuizuo/cache)
 
 Gin middleware/handler to enable Cache.
 
@@ -14,13 +14,13 @@ Gin middleware/handler to enable Cache.
 Download and install it:
 
 ```sh
-$ go get github.com/gin-contrib/cache
+$ go get github.com/wuhuizuo/cache
 ```
 
 Import it in your code:
 
 ```go
-import "github.com/gin-contrib/cache"
+import "github.com/wuhuizuo/cache"
 ```
 
 ### Canonical example:
@@ -34,8 +34,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gin-contrib/cache"
-	"github.com/gin-contrib/cache/persistence"
+	"github.com/wuhuizuo/cache"
+	"github.com/wuhuizuo/cache/persistence"
 	"github.com/gin-gonic/gin"
 )
 

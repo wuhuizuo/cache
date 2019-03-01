@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/memcachier/mc"
-	"github.com/gin-contrib/cache/utils"
+	"github.com/wuhuizuo/cache/utils"
 )
 
 // MemcachedBinaryStore represents the cache with memcached persistence using
@@ -88,7 +88,7 @@ func (s *MemcachedBinaryStore) Flush() error {
 	return convertMcError(s.Client.Flush(0))
 }
 
-// getExpiration converts a gin-contrib/cache expiration in the form of a
+// getExpiration converts a wuhuizuo/cache expiration in the form of a
 // time.Duration to a valid memcached expiration either in seconds (<30 days)
 // or a Unix timestamp (>30 days)
 func (s *MemcachedBinaryStore) getExpiration(expires time.Duration) uint32 {

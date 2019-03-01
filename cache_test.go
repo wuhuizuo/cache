@@ -1,17 +1,17 @@
 package cache
 
 import (
+	"bytes"
+	"encoding/gob"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
-	"encoding/gob"
-	"bytes"
 
-	"github.com/gin-contrib/cache/persistence"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/wuhuizuo/cache/persistence"
 )
 
 func init() {
@@ -283,17 +283,17 @@ func TestCachePageWithoutQuery(t *testing.T) {
 
 func TestRegisterResponseCacheGob(t *testing.T) {
 	RegisterResponseCacheGob()
-	r := responseCache{Status:200, Data: []byte("test"),}
+	r := responseCache{Status: 200, Data: []byte("test")}
 	mCache := new(bytes.Buffer)
 	encCache := gob.NewEncoder(mCache)
 	err := encCache.Encode(r)
 	assert.Nil(t, err)
-	
+
 	var decodedResp responseCache
 	pCache := bytes.NewBuffer(mCache.Bytes())
 	decCache := gob.NewDecoder(pCache)
 	err = decCache.Decode(&decodedResp)
-	assert.Nil(t,err)
+	assert.Nil(t, err)
 
 }
 func performRequest(method, target string, router *gin.Engine) *httptest.ResponseRecorder {

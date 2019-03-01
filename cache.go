@@ -2,17 +2,20 @@ package cache
 
 import (
 	"bytes"
+	"crypto/md5"
 	"crypto/sha1"
+	"encoding/gob"
+	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"sync"
 	"time"
-	"encoding/gob"
 
-	"github.com/gin-contrib/cache/persistence"
 	"github.com/gin-gonic/gin"
+	"github.com/wuhuizuo/cache/persistence"
 )
 
 const (
@@ -28,6 +31,7 @@ type responseCache struct {
 	Header http.Header
 	Data   []byte
 }
+
 // RegisterResponseCacheGob registers the responseCache type with the encoding/gob package
 func RegisterResponseCacheGob() {
 	gob.Register(responseCache{})
@@ -47,6 +51,14 @@ var _ gin.ResponseWriter = &cachedWriter{}
 // CreateKey creates a package specific key for a given string
 func CreateKey(u string) string {
 	return urlEscape(PageCachePrefix, u)
+}
+
+// CreateDataKey create a md5sum key for a given data from post/put request body
+func CreateDataKey(data []byte) string {
+	var tmpData interface{}
+	json.Unmarshal(data, tmpData)
+	sortedBytes, _ := json.Marshal(tmpData)
+	return fmt.Sprintf("%x", md5.Sum(sortedBytes))
 }
 
 func urlEscape(prefix string, u string) string {
@@ -136,6 +148,45 @@ func SiteCache(store persistence.CacheStore, expire time.Duration) gin.HandlerFu
 		key := CreateKey(url.RequestURI())
 		if err := store.Get(key, &cache); err != nil {
 			c.Next()
+		} else {
+			c.Writer.WriteHeader(cache.Status)
+			for k, vals := range cache.Header {
+				for _, v := range vals {
+					c.Writer.Header().Set(k, v)
+				}
+			}
+			c.Writer.Write(cache.Data)
+		}
+	}
+}
+
+// CachePostPage Decorator
+func CachePostJsonPage(store persistence.CacheStore, expire time.Duration, handle gin.HandlerFunc) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var cache responseCache
+		url := c.Request.URL
+		bodyBytes, bodyErr := c.GetRawData()
+
+		if bodyErr != nil {
+			log.Println(bodyErr.Error())
+			handle(c)
+			return
+		}
+
+		key := CreateKey(url.RequestURI()) + ":json@" + CreateDataKey(bodyBytes)
+		if err := store.Get(key, &cache); err != nil {
+			if err != persistence.ErrCacheMiss {
+				log.Println(err.Error())
+			}
+			// replace writer
+			writer := newCachedWriter(store, expire, c.Writer, key)
+			c.Writer = writer
+			handle(c)
+
+			// Drop caches of aborted contexts
+			if c.IsAborted() {
+				store.Delete(key)
+			}
 		} else {
 			c.Writer.WriteHeader(cache.Status)
 			for k, vals := range cache.Header {
