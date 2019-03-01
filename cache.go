@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -160,12 +161,20 @@ func SiteCache(store persistence.CacheStore, expire time.Duration) gin.HandlerFu
 	}
 }
 
+// TeeBody tee request's Body
+func TeeBody(request *http.Request) io.Reader {
+	b := bytes.NewBuffer(make([]byte, 0))
+	reader := io.TeeReader(request.Body, b)
+	request.Body = ioutil.NopCloser(b)
+	return reader
+}
+
 // CachePostPage Decorator
 func CachePostJsonPage(store persistence.CacheStore, expire time.Duration, handle gin.HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var cache responseCache
 		url := c.Request.URL
-		bodyBytes, bodyErr := c.Copy().GetRawData()
+		bodyBytes, bodyErr := ioutil.ReadAll(TeeBody(c.Request))
 
 		if bodyErr != nil {
 			log.Println(bodyErr.Error())
