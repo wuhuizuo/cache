@@ -165,7 +165,7 @@ func CachePostJsonPage(store persistence.CacheStore, expire time.Duration, handl
 	return func(c *gin.Context) {
 		var cache responseCache
 		url := c.Request.URL
-		bodyBytes, bodyErr := c.GetRawData()
+		bodyBytes, bodyErr := c.Copy().GetRawData()
 
 		if bodyErr != nil {
 			log.Println(bodyErr.Error())
