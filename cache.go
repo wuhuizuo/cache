@@ -56,7 +56,7 @@ func CreateKey(u string) string {
 // CreateDataKey create a md5sum key for a given data from post/put request body
 func CreateDataKey(data []byte) string {
 	var tmpData interface{}
-	json.Unmarshal(data, tmpData)
+	json.Unmarshal(data, &tmpData)
 	sortedBytes, _ := json.Marshal(tmpData)
 	return fmt.Sprintf("%x", md5.Sum(sortedBytes))
 }
