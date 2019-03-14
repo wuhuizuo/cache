@@ -28,9 +28,9 @@ var (
 )
 
 type responseCache struct {
-	Status int
-	Header http.Header
-	Data   []byte
+	Status int         `json:"status"`
+	Header http.Header `json:"header"`
+	Data   []byte      `json:"data"`
 }
 
 // RegisterResponseCacheGob registers the responseCache type with the encoding/gob package
@@ -99,7 +99,8 @@ func (w *cachedWriter) Write(data []byte) (int, error) {
 	if err == nil {
 		store := w.store
 		var cache responseCache
-		if err := store.Get(w.key, &cache); err == nil {
+		errGet := store.Get(w.key, &cache)
+		if errGet == nil {
 			data = append(cache.Data, data...)
 		}
 
