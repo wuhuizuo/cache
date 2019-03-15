@@ -157,6 +157,7 @@ func SiteCache(store persistence.CacheStore, expire time.Duration) gin.HandlerFu
 					c.Writer.Header().Set(k, v)
 				}
 			}
+			c.Writer.Header().Set("Cache-Key", key)
 			c.Writer.Write(cache.Data)
 		}
 	}
@@ -204,6 +205,7 @@ func CachePostJsonPage(store persistence.CacheStore, expire time.Duration, handl
 					c.Writer.Header().Set(k, v)
 				}
 			}
+			c.Writer.Header().Set("Cache-Key", key)
 			c.Writer.Write(cache.Data)
 		}
 	}
