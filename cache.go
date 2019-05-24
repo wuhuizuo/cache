@@ -171,7 +171,7 @@ func TeeBody(request *http.Request) io.Reader {
 	return reader
 }
 
-// CachePostPage Decorator
+// CachePostJsonPage Decorator
 func CachePostJsonPage(store persistence.CacheStore, expire time.Duration, handle gin.HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var cache responseCache
@@ -206,6 +206,11 @@ func CachePostJsonPage(store persistence.CacheStore, expire time.Duration, handl
 				}
 			}
 			c.Writer.Header().Set("Cache-Key", key)
+			var tempData interface{}
+			if json.Unmarshal(cache.Data, &tempData) != nil {
+				panic(fmt.Sprintf("invalid json read from cache:%s", string(cache.Data)))
+			}
+
 			c.Writer.Write(cache.Data)
 		}
 	}
