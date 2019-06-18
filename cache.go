@@ -12,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 
@@ -208,6 +209,7 @@ func CachePostJsonPage(store persistence.CacheStore, expire time.Duration, handl
 			c.Writer.Header().Set("Cache-Key", key)
 			var tempData interface{}
 			if json.Unmarshal(cache.Data, &tempData) != nil {
+				fmt.Printf("%s: invalid json read from cache:%s\n", time.Now().Format(time.RFC3339Nano), string(cache.Data))
 				panic(fmt.Sprintf("invalid json read from cache:%s", string(cache.Data)))
 			}
 
@@ -242,7 +244,15 @@ func CachePage(store persistence.CacheStore, expire time.Duration, handle gin.Ha
 					c.Writer.Header().Set(k, v)
 				}
 			}
-			c.Writer.Write(cache.Data)
+			c.Writer.Header().Set("Cache-Key", key)
+			str := string(cache.Data)
+			if i := strings.Index(str, "}{"); i != -1 {
+				t := time.Now().Format(time.RFC3339Nano)
+				fmt.Printf("%s: ****************error json in cache read happend**************\n", t)
+				str = string(cache.Data[:i+1])
+				fmt.Printf("%s: ****************solve double result************\n", t)
+			}
+			c.Writer.Write([]byte(str))
 		}
 	}
 }
